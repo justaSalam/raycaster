@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     public static PlayerController instance;
+    private ObjectPooler obejctPooler;
     [Header("Level")]
     public GameObject levelSprite;
     public GameObject spritePrefab;
@@ -58,6 +59,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         onDamage += OnDamage;
+       
 
         Screen.SetResolution(1920, 1080, true);
         Cursor.lockState = CursorLockMode.Locked;
@@ -96,6 +98,7 @@ public class PlayerController : MonoBehaviour
            
             raycastObject.gameObject.transform.rotation = Quaternion.Euler(0, 0, currentRayRotation);
         }
+        obejctPooler = ObjectPooler.instance;
     }
 
     private void Start()
@@ -140,7 +143,7 @@ public class PlayerController : MonoBehaviour
     }
     private void DrawLine3D(RaycastHit2D hit, int index, Color color)
     {
-        GameObject wall = Instantiate(wallPrefab);
+        GameObject wall = obejctPooler.SpawnFromQueue("quad");
         MeshRenderer renderer = wall.GetComponent<MeshRenderer>();
         //Position of the walls (i want to kms)
         Vector2 desiredPosition = new Vector2(camera.WorldToViewportPoint(Vector2.zero).x - (raysList[index].screenPosition - 960/*Width of the screen divided by 2*/), camera.WorldToViewportPoint(Vector2.zero).y);
@@ -154,7 +157,7 @@ public class PlayerController : MonoBehaviour
 
         renderer.material.color = color * ((1/hit.distance) * fogMultiplier);
         renderer.sortingOrder = hit.collider.gameObject.GetComponent<SpriteRenderer>().sortingOrder;
-        Destroy(wall, Time.fixedUnscaledDeltaTime);
+        //Destroy(wall, Time.fixedUnscaledDeltaTime);
     }
 
     public void DrawRays3D()
